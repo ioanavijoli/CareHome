@@ -1,0 +1,4 @@
+FROM tomcat:8.5-jre8
+MAINTAINER  Andrei Groza, andrei.groza@servustech.com
+
+ADD target/moball.war /usr/local/tomcat/moball.war

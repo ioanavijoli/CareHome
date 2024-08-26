@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.servustech.mongo-utils</groupId>
+	<artifactId>mongo-utils</artifactId>
+	<version>0.0.2-SNAPSHOT</version>
+
+	<name>mongo-utils</name>
+
+	<properties>
+		<java.version>1.8</java.version>
+
+		<spring.framework>4.2.5.RELEASE</spring.framework>
+		<spring.data.mongo>1.8.4.RELEASE</spring.data.mongo>
+		<mongo.java.driver>3.2.2</mongo.java.driver>
+
+		<exposable.version>0.0.2</exposable.version>
+	</properties>
+
+	<developers>
+		<developer>
+			<name>Andrei Groza</name>
+			<email>andrei.groza@servustech.com</email>
+			<organization>ServUSTech</organization>
+			<organizationUrl>www.servustech.com</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.bsc.maven</groupId>
+				<artifactId>maven-processor-plugin</artifactId>
+				<version>2.2.4</version>
+				<executions>
+					<execution>
+						<id>process</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/generated-sources/exposable</outputDirectory>
+							<processors>
+								<processor>com.github.grozandrei.exposable.processor.ExposableProcessor</processor>
+							</processors>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.github.grozandrei</groupId>
+						<artifactId>exposable-processor</artifactId>
+						<version>${exposable.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.10</version>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/generated-sources/exposable</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.framework}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>${mongo.java.driver}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-mongodb</artifactId>
+			<version>${spring.data.mongo}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.grozandrei</groupId>
+			<artifactId>exposable-annotation</artifactId>
+			<version>${exposable.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.8.3</version>
+		</dependency>
+	</dependencies>
+</project>

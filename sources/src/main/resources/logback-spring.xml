@@ -1,0 +1,43 @@
+<configuration debug="true" scan="true" scanPeriod="60 seconds">
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- encoders are by default assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+		<encoder>
+			<pattern>
+				%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${catalina.base}/logs/carehome/carehome.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${catalina.base}/logs/carehome/carehome-%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<!-- or whenever the file size reaches 100MB -->
+				<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			
+			<!-- keep 100 days' worth of history -->
+			<maxHistory>100</maxHistory>
+		</rollingPolicy>
+		<!-- <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"> -->
+		<!-- <maxFileSize>5MB</maxFileSize> -->
+		<!-- </triggeringPolicy> -->
+
+		<encoder>
+			<pattern>
+				%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+
+	<logger name="com.servustech.carehome" level="TRACE" />
+	<logger name="org.springframework" level="INFO" />
+
+	<root level="WARN">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="ROLLING" />
+	</root>
+</configuration>

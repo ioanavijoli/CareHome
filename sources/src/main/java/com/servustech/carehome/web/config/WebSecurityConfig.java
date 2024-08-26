@@ -49,8 +49,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						"/swagger-ui/**",
 						"/webjars/**",
 						"/swagger/**").permitAll()
-				// Allow other public endpoints if any
-				.antMatchers("/public/**").permitAll()
+				.antMatchers("/api/v1/info/delete/**", "/api/v1/info/create/**").authenticated()
+				.antMatchers("/**").permitAll()
 				.anyRequest().authenticated()
 				.and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

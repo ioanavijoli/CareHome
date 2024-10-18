@@ -45,7 +45,6 @@ public class ImageUtil {
 
             throw new DiskOperationException("Not able to resize");
         }
-
     }
 
     private static String getType(String contentType) {

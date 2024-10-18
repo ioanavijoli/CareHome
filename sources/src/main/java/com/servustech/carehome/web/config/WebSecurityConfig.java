@@ -22,11 +22,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.addAllowedOrigin("http://localhost:9000");
 		configuration.addAllowedOrigin("http://localhost:8181");
-		configuration.addAllowedOrigin("http://20.215.212.20:8181");
-		configuration.addAllowedOrigin("http://20.215.212.20:9000");
-		configuration.addAllowedOrigin("http://20.215.212.20:4200");
+		configuration.addAllowedOrigin("http://5.2.192.5:8181");
+		configuration.addAllowedOrigin("http://5.2.192.5:8080");
+		configuration.addAllowedOrigin("http://5.2.192.5:4200");
 		configuration.addAllowedOrigin("http://localhost:4200");
-		configuration.addAllowedOrigin("*");
+		configuration.addAllowedOrigin("http://192.168.0.175:4200");
 		configuration.addAllowedHeader("*");
 		configuration.addAllowedMethod("*");
 		configuration.setAllowCredentials(true);
@@ -36,12 +36,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		return new CorsFilter(source);
 	}
+
 	@Autowired
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
+				.addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
 				.authorizeRequests()
 				.antMatchers("/v2/api-docs",
 						"/swagger-resources/**",

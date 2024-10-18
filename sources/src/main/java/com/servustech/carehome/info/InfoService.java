@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InfoService {
@@ -23,6 +24,10 @@ public class InfoService {
         this.addressRepository = addressRepository;
     }
 
+    public Page<InfoDTO> searchByService(String service, int page, int pageSize) {
+        PageRequest pageRequest = new PageRequest(page, pageSize);
+        return repository.findByServicesContaining(service, pageRequest).map(InfoMapper::toDTO);
+    }
 
     public InfoDTO create(InfoDTO dto) {
         Info info = InfoMapper.toEntity(dto);
@@ -102,6 +107,7 @@ public class InfoService {
     }
     public Page<InfoDTO> searchByLocationAndType(String location, String type, int page, int pageSize) {
         Pageable pageable = new PageRequest(page, pageSize);
+
         List<Info> combinedResults = new ArrayList<>();
         int totalSize = 0;
 
@@ -115,17 +121,14 @@ public class InfoService {
                 combinedResults.addAll(cityResults.getContent());
                 totalSize += (int) cityResults.getTotalElements();
             }
-
             if (countryResults != null) {
                 combinedResults.addAll(countryResults.getContent());
                 totalSize += (int) countryResults.getTotalElements();
             }
-
             if (stateResults != null) {
                 combinedResults.addAll(stateResults.getContent());
                 totalSize += (int) stateResults.getTotalElements();
             }
-
             if (postalCodeResults != null) {
                 combinedResults.addAll(postalCodeResults.getContent());
                 totalSize += (int) postalCodeResults.getTotalElements();
@@ -140,26 +143,28 @@ public class InfoService {
                 combinedResults.addAll(cityResults.getContent());
                 totalSize += (int) cityResults.getTotalElements();
             }
-
             if (countryResults != null) {
                 combinedResults.addAll(countryResults.getContent());
                 totalSize += (int) countryResults.getTotalElements();
             }
-
             if (stateResults != null) {
                 combinedResults.addAll(stateResults.getContent());
                 totalSize += (int) stateResults.getTotalElements();
             }
-
             if (postalCodeResults != null) {
                 combinedResults.addAll(postalCodeResults.getContent());
                 totalSize += (int) postalCodeResults.getTotalElements();
             }
         }
 
-        List<InfoDTO> dtos = InfoMapper.toDTOList(combinedResults);
-        return new PageImpl<>(dtos, pageable, totalSize);
+        int start = Math.min(page * pageSize, combinedResults.size());
+        int end = Math.min((start + pageSize), combinedResults.size());
+
+        List<InfoDTO> paginatedResults = InfoMapper.toDTOList(combinedResults.subList(start, end));
+
+        return new PageImpl<>(paginatedResults, pageable, totalSize);
     }
+
 
     public Page<InfoDTO> searchByName(String name, int page, int pageSize) {
         PageRequest pageRequest = new PageRequest(page, pageSize);
@@ -186,5 +191,8 @@ public class InfoService {
         return InfoMapper.toDTOList(infoList);
     }
 
-
+    public boolean existsByName(String name) {
+        Optional<Info> optionalInfo = repository.findByName(name);
+        return optionalInfo.isPresent();
+    }
 }

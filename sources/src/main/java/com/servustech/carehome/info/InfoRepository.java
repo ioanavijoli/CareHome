@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface InfoRepository extends MongoRepository<Info, String> {
      Optional<Info> findById(String id);
+     Optional<Info> findByName(String name);
      @Query("{ '_id': { $in: ?0 } }")
      List<Info> findAllByIds(List<String> ids);
      Page<Info> findByAddressCity(String city, Pageable pageable);

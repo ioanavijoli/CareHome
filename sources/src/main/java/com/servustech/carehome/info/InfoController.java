@@ -105,32 +105,55 @@ public class InfoController {
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @PreAuthorize("hasRole('BUSINESS')")
-    public ResponseEntity<InfoDTO> createInfo(@RequestBody InfoDTO infoDTO) {
-        LOGGER.debug("Creating new info entity");
+    public ResponseEntity<?> createInfo(@RequestBody InfoDTO infoDTO) {
+        if (infoDTO == null) {
+            return createErrorResponse(HttpStatus.BAD_REQUEST, "Carehome cannot be null.");
+        }
+
+        if (infoDTO.getName() == null || infoDTO.getName().isEmpty()) {
+            return createErrorResponse(HttpStatus.BAD_REQUEST, "Name cannot be empty.");
+        }
+
+        if (infoDTO.getEmail() == null || infoDTO.getEmail().isEmpty()) {
+            return createErrorResponse(HttpStatus.BAD_REQUEST, "Email cannot be empty.");
+        }
+
+        if (infoService.existsByName(infoDTO.getName())) {
+            return createErrorResponse(HttpStatus.CONFLICT, "An info entry with this name already exists.");
+        }
         InfoDTO createdInfo = infoService.create(infoDTO);
         return new ResponseEntity<>(createdInfo, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
     @PreAuthorize("hasRole('BUSINESS')")
-    public ResponseEntity<InfoDTO> updateInfo(@PathVariable("id") String id, @RequestBody InfoDTO infoDTO) {
-        LOGGER.debug("Updating info entity with ID: {}", id);
+    public ResponseEntity<?> updateInfo(@PathVariable("id") String id, @RequestBody InfoDTO infoDTO) {
+        InfoDTO existingInfo = infoService.getById(id);
+        if (existingInfo == null) {
+            return createErrorResponse(HttpStatus.NOT_FOUND, "No carehome with given ID found.");
+        }
         InfoDTO updatedInfo = infoService.update(id, infoDTO);
         return new ResponseEntity<>(updatedInfo, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasRole('BUSINESS')")
-    public ResponseEntity<Void> deleteInfo(@PathVariable("id") String id) {
-        LOGGER.debug("Deleting info entity with ID: {}", id);
+    public ResponseEntity<?> deleteInfo(@PathVariable("id") String id) {
+        InfoDTO infoDTO = infoService.getById(id);
+        if (infoDTO == null) {
+            return createErrorResponse(HttpStatus.NOT_FOUND, "No carehome with given ID found.");
+        }
         infoService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public ResponseEntity<InfoDTO> getInfoById(@PathVariable("id") String id) {
+    public ResponseEntity<?> getInfoById(@PathVariable("id") String id) {
         LOGGER.debug("Retrieving info entity with ID: {}", id);
         InfoDTO infoDTO = infoService.getById(id);
+        if (infoDTO == null) {
+            return createErrorResponse(HttpStatus.NOT_FOUND, "No carehome with given ID found.");
+        }
         return new ResponseEntity<>(infoDTO, HttpStatus.OK);
     }
 
@@ -143,10 +166,25 @@ public class InfoController {
         Page<InfoDTO> infoPage = infoService.searchByLocationAndType(location, type, page, pageSize);
         return getMapResponseEntity(infoPage);
     }
+    @RequestMapping(value = "/searchByService", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, Object>> searchByService(
+            @RequestParam("service") String service,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "30") int pageSize) {
+
+        Page<InfoDTO> infoPage = infoService.searchByService(service, page, pageSize);
+        return getMapResponseEntity(infoPage);
+    }
 
     @RequestMapping(value = "/compare", method = RequestMethod.GET)
     public ResponseEntity<List<InfoDTO>> getAllByIds(@RequestParam List<String> ids) {
         return new ResponseEntity<>(infoService.findAllByIds(ids), HttpStatus.OK);
     }
-
+    private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String errorMsg) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("errorCode", status.value());
+        response.put("errorKey", status.getReasonPhrase().toUpperCase());
+        response.put("errorMsg", errorMsg);
+        return ResponseEntity.status(status).body(response);
+    }
 }
